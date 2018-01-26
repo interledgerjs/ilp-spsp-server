@@ -6,6 +6,17 @@
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
+  "bin": {
+    "ilp-spsp-server": "./index.js"
+  },
   "author": "",
-  "license": "ISC"
+  "license": "ISC",
+  "dependencies": {
+    "chalk": "^2.3.0",
+    "get-port": "^3.2.0",
+    "ilp-plugin": "^3.0.0",
+    "ilp-protocol-psk2": "^0.2.1",
+    "koa": "^2.4.1",
+    "localtunnel": "^1.8.3"
+  }
 }
