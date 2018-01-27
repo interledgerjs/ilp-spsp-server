@@ -31,8 +31,7 @@ async function run () {
   const receiver = await PSK2.createReceiver({
     plugin,
     paymentHandler: async (params) => {
-      console.log('fulfilling. expectedValue=', params.expectedAmount,
-        'prepare=', params.prepare)
+      console.log('got packet for', params.prepare.amount, 'drops')
       return params.accept()
     }
   })
