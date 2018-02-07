@@ -32,7 +32,7 @@ async function run () {
     plugin,
     paymentHandler: async (params) => {
       console.log('got packet for', params.prepare.amount, 'drops')
-      return params.accept()
+      return params.acceptSingleChunk()
     }
   })
 
