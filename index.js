@@ -1,9 +1,10 @@
 #!/usr/bin/env node
+const crypto = require('crypto')
 const chalk = require('chalk')
 const getPort = require('get-port')
 const plugin = require('ilp-plugin')()
 const localtunnel = require('localtunnel')
-const PSK2 = require('ilp-protocol-psk2')
+const { PaymentServer } = require('ilp-protocol-paystream')
 const Koa = require('koa')
 const app = new Koa()
 
@@ -28,22 +29,20 @@ async function run () {
   await plugin.connect()
 
   const port = argv.port || await getPort()
-  const receiver = await PSK2.createReceiver({
-    plugin,
-    paymentHandler: async (params) => {
-      console.log('got packet for', params.prepare.amount, 'drops')
-      return params.acceptSingleChunk()
-    }
-  })
+  const receiver = new PaymentServer(plugin, crypto.randomBytes(32))
+  await receiver.connect()
 
   console.log('created receiver...')
   async function handleSPSP (ctx, next) {
-    if (ctx.get('Accept').indexOf('application/spsp+json') !== -1) {
-      const details = receiver.generateAddressAndSecret()
-      ctx.set('Content-Type', 'application/spsp+json')
+    if (ctx.get('Accept').indexOf('application/spsp4+json') !== -1) {
+      const socket = receiver.createSocket({
+        enableRefunds: true
+      })
+
+      ctx.set('Content-Type', 'application/spsp4+json')
       ctx.body = {
-        destination_account: details.destinationAccount,
-        shared_secret: details.sharedSecret.toString('base64')
+        destination_account: socket.destinationAccount,
+        shared_secret: socket.sharedSecret.toString('base64')
       }
     } else {
       return next()
