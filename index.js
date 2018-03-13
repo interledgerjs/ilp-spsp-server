@@ -15,6 +15,7 @@ const argv = require('yargs')
   })
   .option('localtunnel', {
     default: true,
+    type: 'boolean',
     description: 'use localtunnel'
   })
   .option('port', {
