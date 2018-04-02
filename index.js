@@ -3,11 +3,12 @@ const chalk = require('chalk')
 const getPort = require('get-port')
 const plugin = require('ilp-plugin')()
 const localtunnel = require('localtunnel')
-const PSK2 = require('ilp-protocol-psk2')
+const { Server } = require('ilp-protocol-stream')
 const Koa = require('koa')
 const app = new Koa()
+const crypto = require('crypto')
 
-const name = require('crypto').randomBytes(8).toString('hex')
+const name = crypto.randomBytes(8).toString('hex')
 const argv = require('yargs')
   .option('subdomain', {
     default: name,
@@ -29,18 +30,24 @@ async function run () {
   await plugin.connect()
 
   const port = argv.port || await getPort()
-  const receiver = await PSK2.createReceiver({
+  const server = new Server({
     plugin,
-    paymentHandler: async (params) => {
-      console.log('got packet for', params.prepare.amount, 'units')
-      return params.acceptSingleChunk()
-    }
+    serverSecret: crypto.randomBytes(32)
+  })
+
+  server.on('connection', connection => {
+    connection.on('money_stream', stream => {
+      stream.setReceiveMax(Infinity)
+      stream.on('incoming', amount => {
+        console.log('got packet for', params.prepare.amount, 'units')
+      })
+    })
   })
 
   console.log('created receiver...')
   async function handleSPSP (ctx, next) {
     if (ctx.get('Accept').indexOf('application/spsp+json') !== -1) {
-      const details = receiver.generateAddressAndSecret()
+      const details = server.generateAddressAndSecret()
       ctx.set('Content-Type', 'application/spsp+json')
       ctx.body = {
         destination_account: details.destinationAccount,
