@@ -37,12 +37,14 @@ async function run () {
 
   server.on('connection', connection => {
     connection.on('money_stream', stream => {
-      stream.setReceiveMax(Infinity)
+      stream.setReceiveMax(10000000000000)
       stream.on('incoming', amount => {
-        console.log('got packet for', params.prepare.amount, 'units')
+        console.log('got packet for', amount, 'units')
       })
     })
   })
+
+  await server.listen()
 
   console.log('created receiver...')
   async function handleSPSP (ctx, next) {
