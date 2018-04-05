@@ -17,6 +17,7 @@
     "get-port": "^3.2.0",
     "ilp-plugin": "^3.0.0",
     "ilp-protocol-psk2": "^0.2.1",
+    "ilp-protocol-stream": "^0.1.2",
     "koa": "^2.4.1",
     "localtunnel": "^1.8.3"
   }
