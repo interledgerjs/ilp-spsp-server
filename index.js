@@ -64,20 +64,20 @@ async function run () {
   async function handleSPSP (ctx, next) {
     if (ctx.get('Accept').indexOf('application/spsp4+json') !== -1) {
       const details = streamServer.generateAddressAndSecret()
+      ctx.body = {
+        destination_account: details.destinationAccount,
+        shared_secret: details.sharedSecret.toString('base64')
+      }
       ctx.set('Content-Type', 'application/spsp4+json')
       ctx.set('Access-Control-Allow-Origin', '*')
-      ctx.body = {
-        destination_account: details.destinationAccount,
-        shared_secret: details.sharedSecret.toString('base64')
-      }
     } else if (ctx.get('Accept').indexOf('application/spsp+json') !== -1) {
       const details = pskReceiver.generateAddressAndSecret()
-      ctx.set('Content-Type', 'application/spsp+json')
-      ctx.set('Access-Control-Allow-Origin', '*')
       ctx.body = {
         destination_account: details.destinationAccount,
         shared_secret: details.sharedSecret.toString('base64')
       }
+      ctx.set('Content-Type', 'application/spsp+json')
+      ctx.set('Access-Control-Allow-Origin', '*')
     } else {
       return next()
     }
