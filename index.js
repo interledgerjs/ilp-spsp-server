@@ -63,10 +63,16 @@ async function run () {
   console.log('created receiver...')
   async function handleSPSP (ctx, next) {
     if (ctx.get('Accept').indexOf('application/spsp4+json') !== -1) {
-      const details = streamServer.generateAddressAndSecret()
+      const receiptNonce = ctx.headers['receipt-nonce'] ? Buffer.from(ctx.headers['receipt-nonce'], 'base64') : undefined
+      const receiptSecret = ctx.headers['receipt-secret'] ? Buffer.from(ctx.headers['receipt-secret'], 'base64') : undefined
+      const details = streamServer.generateAddressAndSecret({
+        receiptNonce,
+        receiptSecret
+      })
       ctx.body = {
         destination_account: details.destinationAccount,
-        shared_secret: details.sharedSecret.toString('base64')
+        shared_secret: details.sharedSecret.toString('base64'),
+        receipts_enabled: details.receiptsEnabled
       }
       ctx.set('Content-Type', 'application/spsp4+json')
       ctx.set('Access-Control-Allow-Origin', '*')
