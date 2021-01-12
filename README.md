@@ -22,6 +22,13 @@ Then in a second terminal, run:
 ilp-spsp send --receiver '$123456.localtunnel.me' --amount 100
 ```
 
+If you're running `--localtunnel false` then run the following where the port was output by your ilp-spsp-server command:
+
+```
+ilp-spsp send --receiver 'http://localhost:<port>' --amount 100
+```
+
+
 You'll see `sent!` on the sending side, and `got packet for 100 drops` on the
 receiving side.
 
